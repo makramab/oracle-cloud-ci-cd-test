@@ -1,7 +1,5 @@
-# Declare the build argument
-ARG BASE_IMAGE
+FROM openjdk:17-jdk-slim
 
-FROM ${BASE_IMAGE}
 RUN apt-get update && apt-get install -y maven
 
 WORKDIR /app

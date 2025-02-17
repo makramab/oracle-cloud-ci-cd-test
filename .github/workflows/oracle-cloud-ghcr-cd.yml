@@ -47,7 +47,7 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
-          file: ./Dockerfile
+          file: ./Dockerfile.dev
       - name: Run the latest Docker image on Oracle Cloud
         uses: appleboy/ssh-action@v1.2.0
         env:
