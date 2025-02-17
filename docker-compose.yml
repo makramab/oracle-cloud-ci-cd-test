@@ -1,0 +1,9 @@
+services:
+  springboot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        BASE_IMAGE: ${GHCR_IMAGE}
+    ports:
+      - "8080:8080"
