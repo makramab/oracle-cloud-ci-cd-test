@@ -10,10 +10,17 @@ jobs:
     steps:
       - name: Execute SSH Commands
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          REPOSITORY_NAME: ${{ secrets.REPOSITORY_NAME }}
         with:
           host: ${{ secrets.ORACLE_CLOUD_HOST }}
           username: ${{ secrets.ORACLE_CLOUD_INSTANCE_USERNAME }}
           key: ${{ secrets.ORACLE_CLOUD_KEY }}
+          envs: REPOSITORY_NAME
           script: |
             whoami
             ls -al
+            cd $REPOSITORY_NAME
+            git pull
+            docker compose down
+            docker compose up -d --build
