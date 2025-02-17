@@ -65,5 +65,6 @@ jobs:
             cd $REPOSITORY_NAME
             git pull
             git checkout $BRANCH
+            git pull
             docker compose down
             docker compose up --build
