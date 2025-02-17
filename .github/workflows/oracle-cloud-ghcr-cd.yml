@@ -1,8 +1,5 @@
 name: Oracle Cloud Deployment on PR Update using GHCR
 
-# env:
-#   AZURE_WEBAPP_NAME: sika-backend-app #
-
 on:
   pull_request:
     types: [opened, synchronize]
@@ -36,6 +33,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Lowercase the repo name
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+      - name: Lowercase the branch name
+        run: |
+          if [ -n "$GITHUB_HEAD_REF" ]; then
+            branch="$GITHUB_HEAD_REF"
+          else
+            branch="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "BRANCH=${branch,,}" >> ${GITHUB_ENV}
       - name: Build and push container image to registry
         uses: docker/build-push-action@v5
         with:
@@ -43,20 +48,22 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
           file: ./Dockerfile
-
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #
-  #   needs: build
-  #
-  #   steps:
-  #     - name: Lowercase the repo name
-  #       run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-  #     - name: Deploy to Azure Web App
-  #       id: deploy-to-webapp
-  #       uses: azure/webapps-deploy@v3
-  #       with:
-  #         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-  #         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-  #         images: "ghcr.io/${{ env.REPO }}:${{ github.sha }}"
-  #         slot-name: staging
+      - name: Run the latest Docker image on Oracle Cloud
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GHCR_IMAGE: ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          REPOSITORY_NAME: ${{ secrets.REPOSITORY_NAME }}
+          BRANCH: ${{ env.BRANCH }}
+        with:
+          host: ${{ secrets.ORACLE_CLOUD_HOST }}
+          username: ${{ secrets.ORACLE_CLOUD_INSTANCE_USERNAME }}
+          key: ${{ secrets.ORACLE_CLOUD_KEY }}
+          envs: REPOSITORY_NAME, GHCR_IMAGE, BRANCH
+          script: |
+            whoami
+            ls -al
+            cd $REPOSITORY_NAME
+            git pull
+            git checkout $BRANCH
+            docker compose down
+            docker compose up --build

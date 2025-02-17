@@ -1,5 +1,8 @@
 services:
   springboot-app:
-    build: .
+    build:
+      context: .
+      args:
+        BASE_IMAGE: ${GHCR_IMAGE}
     ports:
       - "8080:8080"
