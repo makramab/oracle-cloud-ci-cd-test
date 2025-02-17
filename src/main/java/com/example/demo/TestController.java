@@ -8,6 +8,6 @@ public class TestController {
 
   @GetMapping("/")
   public String test() {
-    return "Hello World! Updated 2";
+    return "Hello World! From direct pull on the repo!";
   }
 }
