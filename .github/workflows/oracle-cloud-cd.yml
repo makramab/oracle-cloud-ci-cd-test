@@ -1,0 +1,19 @@
+name: Oracle Cloud Deployment on PR Updates
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute SSH Commands
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ORACLE_CLOUD_HOST }}
+          username: ${{ secrets.ORACLE_CLOUD_INSTANCE_USERNAME }}
+          key: ${{ secrets.ORACLE_CLOUD_KEY }}
+          script: |
+            whoami
+            ls -al
